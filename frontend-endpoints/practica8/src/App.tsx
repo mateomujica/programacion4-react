@@ -11,7 +11,13 @@ interface CurrentUser {
 function getUserIdFromToken(token: string): number | null {
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
-    return Number(payload.sub ?? payload.id ?? payload.user_id) || null;
+    const candidate =
+      payload.id ??
+      payload.user_id ??
+      (isNaN(Number(payload.sub)) ? null : payload.sub);
+    return candidate !== null && candidate !== undefined
+      ? Number(candidate)
+      : null;
   } catch {
     return null;
   }
